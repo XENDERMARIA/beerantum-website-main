@@ -25,6 +25,8 @@ async function seed() {
         email: adminEmail,
         password: process.env.ADMIN_PASSWORD || "Admin@123456",
         role: "admin",
+        isEmailVerified: true,
+        authMethod: "local",
       });
       console.log(`✅ Admin user created: ${admin.email}`);
     } else {
@@ -164,3 +166,5 @@ async function seed() {
 }
 
 seed();
+
+

@@ -1,6 +1,7 @@
 {
   "name": "beerantum-backend",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "Beerantum Quantum Team — REST API Backend",
   "main": "src/server.js",
   "scripts": {
