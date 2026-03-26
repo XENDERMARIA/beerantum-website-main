@@ -75,7 +75,7 @@ function MemberModal({ member, onClose, onSave }: { member?: TeamMember; onClose
         role: data.role,
         education: data.education,
         bio: data.bio,
-        photoUrl: data.photoUrl,
+        photoUrl: data.photoUrl || undefined,
         isLeadership: data.isLeadership,
         order: Number(data.order),
         socialLinks: {
