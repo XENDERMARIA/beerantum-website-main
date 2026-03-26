@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { teamService } from "@/services";
 import { cn, getInitials, getErrorMessage } from "@/utils";
 import type { TeamMember } from "@/types";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 
 function Tip({ text }: { text: string }) {
@@ -47,10 +48,9 @@ type FormData = {
 
 function MemberModal({ member, onClose, onSave }: { member?: TeamMember; onClose: () => void; onSave: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(member?.photoUrl || "");
   const isEdit = !!member;
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       name: member?.name || "",
       role: member?.role || "",
@@ -67,8 +67,6 @@ function MemberModal({ member, onClose, onSave }: { member?: TeamMember; onClose
 
   
   const photoUrlValue = watch("photoUrl");
-  useEffect(() => setPreviewUrl(photoUrlValue), [photoUrlValue]);
-
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
@@ -181,43 +179,17 @@ function MemberModal({ member, onClose, onSave }: { member?: TeamMember; onClose
               <span className="w-5 h-5 rounded-full bg-[rgba(204,0,204,0.15)] border border-[rgba(204,0,204,0.3)] flex items-center justify-center text-[10px] font-bold">2</span>
               Photo
             </h3>
-            <div className="flex items-start gap-5">
-              <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                <div className="text-[10px] font-mono text-[var(--brand-text-muted)] uppercase tracking-widest mb-1">Preview</div>
-                <div className="w-20 h-20 rounded-xl overflow-hidden border border-[rgba(139,47,201,0.3)]">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="preview" className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  ) : (
-                    <div className="photo-placeholder w-full h-full text-lg">{getInitials(watch("name") || "?")}</div>
-                  )}
-                </div>
-              </div>
-              <div className="flex-1 flex flex-col gap-2">
-                <label className="text-xs font-semibold text-[var(--brand-text)] flex items-center gap-1">
-                  <Image size={13} /> Photo URL
-                  <Tip text="Paste a direct link to the photo. Example: https://i.imgur.com/yourphoto.jpg — Or upload to imgur.com/upload for free and paste the link here." />
-                </label>
-                <input
-                  {...register("photoUrl")}
-                  placeholder="https://i.imgur.com/example.jpg"
-                  className="brand-input"
-                />
-                <div className="p-3 rounded-lg text-xs text-[var(--brand-text-muted)] leading-relaxed"
-                  style={{ background: "rgba(139,47,201,0.06)", border: "1px solid rgba(139,47,201,0.12)" }}>
-                  💡 <strong className="text-[var(--brand-text)]">How to get a photo link:</strong>
-                  <ol className="list-decimal ml-4 mt-1 flex flex-col gap-0.5">
-                    <li>Go to <strong>imgur.com/upload</strong> (free, no account needed)</li>
-                    <li>Upload the photo</li>
-                    <li>Right-click the image → "Copy image address"</li>
-                    <li>Paste it in the field above</li>
-                  </ol>
-                </div>
-                <p className="text-[10px] text-[var(--brand-text-muted)]">
-                  Or place the photo in <code className="bg-[rgba(139,47,201,0.1)] px-1 rounded">frontend/public/images/team/</code> and enter <code className="bg-[rgba(139,47,201,0.1)] px-1 rounded">/images/team/filename.jpg</code>
-                </p>
-              </div>
-            </div>
+              <ImageUpload
+                value={watch("photoUrl")}
+                onChange={(url) => setValue("photoUrl", url)}
+                folder="team"
+                label="Member Photo"
+                previewShape="circle"
+              />
+            <p className="text-[10px] text-[var(--brand-text-muted)] mt-2">
+              Or enter a URL manually:
+              <input {...register("photoUrl")} placeholder="https://..." className="brand-input mt-1.5" />
+            </p>
           </div>
 
           {}

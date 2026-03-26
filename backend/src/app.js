@@ -69,7 +69,7 @@ app.use("/api/events", require("./routes/events.routes"));
 app.use("/api/partners", require("./routes/partners.routes"));
 app.use("/api/contact", require("./routes/contact.routes"));
 app.use("/api/content", require("./routes/content.routes"));
-
+app.use("/api/upload", require("./routes/upload.routes"));
 
 
 

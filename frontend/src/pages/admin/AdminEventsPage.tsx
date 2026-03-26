@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { eventsService } from "@/services";
 import { cn, formatDateRange, getErrorMessage } from "@/utils";
 import type { Event } from "@/types";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 function Tip({ text }: { text: string }) {
   const [show, setShow] = useState(false);
@@ -46,7 +47,7 @@ function EventModal({ event, onClose, onSave }: { event?: Event; onClose: () => 
   const [selectedTags, setSelectedTags] = useState<string[]>(event?.tags || []);
   const [customTag, setCustomTag] = useState("");
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<FormData>({
     defaultValues: {
       title: event?.title || "",
       date: event?.date ? new Date(event.date).toISOString().slice(0, 16) : "",
@@ -290,12 +291,14 @@ function EventModal({ event, onClose, onSave }: { event?: Event; onClose: () => 
                 </label>
                 <input {...register("registrationUrl")} placeholder="https://forms.google.com/..." className="brand-input mt-1.5" />
               </div>
-              <div>
-                <label className="text-xs font-semibold text-[var(--brand-text)] flex items-center">
-                  Event Image URL
-                  <Tip text="A banner/thumbnail for the event card. Upload to imgur.com for a free link." />
-                </label>
-                <input {...register("imageUrl")} placeholder="https://i.imgur.com/..." className="brand-input mt-1.5" />
+              <div className="sm:col-span-2">
+                <ImageUpload
+                  value={watch("imageUrl")}
+                  onChange={(url) => setValue("imageUrl", url)}
+                  folder="events"
+                  label="Event Banner Image"
+                  previewShape="square"
+                />
               </div>
               <div>
                 <label className="text-xs font-semibold text-[var(--brand-text)] flex items-center">
