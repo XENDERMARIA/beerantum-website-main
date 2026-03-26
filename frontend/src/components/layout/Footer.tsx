@@ -1,16 +1,24 @@
 import { Link } from "react-router-dom";
-import { Instagram, Youtube, Linkedin } from "lucide-react";
+import { Instagram, Youtube, Linkedin, Facebook, Music2 } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
   const links = ["About", "Team", "Events", "Partners", "Involved", "Contact"];
+
+  const socialLinks = [
+    { Icon: Instagram, href: "https://www.instagram.com/beerantum/" },
+    { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61586622063433" },
+    { Icon: Music2, href: "https://vm.tiktok.com/ZS9JjsEFsfkKe-oMR2c/" },
+    { Icon: Linkedin, href: "https://www.linkedin.com/company/beerantum/" },
+    { Icon: Youtube, href: "https://youtube.com/@beerantum_official" },
+  ];
 
   return (
     <footer className="bg-[#08080F] border-t border-[rgba(139,47,201,0.15)] relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#8B2FC9] to-transparent" />
       <div className="page-container py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {}
+          {/* Logo & Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="relative w-8 h-8 flex items-center justify-center">
@@ -25,8 +33,14 @@ export default function Footer() {
               A quantum computing team fusing Beerus' transformative force with Schrödinger's quantum principle.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Youtube, Linkedin].map((Icon, i) => (
-                <a key={i} href="#" className="text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] transition-colors">
+              {socialLinks.map(({ Icon, href }, i) => (
+                <a 
+                  key={i} 
+                  href={href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] transition-colors"
+                >
                   <Icon size={18} />
                 </a>
               ))}

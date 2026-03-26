@@ -6,15 +6,16 @@ import {
   ChevronDown, Zap, BookOpen, Trophy, Users,
   Lightbulb, Handshake, GraduationCap, Calendar, MapPin,
   Clock, ExternalLink, Send, CheckCircle, Mail, Globe, Linkedin, Github, Twitter,
+  Facebook, Instagram, Youtube, Music2,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { teamService, eventsService, partnersService, contactService } from "@/services";
+import { teamService, eventsService, partnersService, contactService, contentService } from "@/services";
 import { cn, formatDateRange, getInitials, truncate, getErrorMessage } from "@/utils";
 import type { TeamMember, Event, Partner, ContactFormData } from "@/types";
 
 
-function HeroSection() {
+function HeroSection({ content }: { content?: Record<string, string> }) {
   const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -63,28 +64,42 @@ function HeroSection() {
             </div>
 
             <h1 className="font-display font-black uppercase leading-tight fade-up" style={{ animationDelay: "0.2s" }}>
-              <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
-                Welcome to
-              </span>
-              <span className="block gradient-text mt-1 pb-2" style={{ fontSize: "clamp(2rem, 5vw, 5.5rem)" }}>
-                Beerantum!
-              </span>
+              {content?.headline ? (
+                <span className="block gradient-text mt-1 pb-2 shadow-text" style={{ fontSize: "clamp(1.8rem, 5vw, 5.5rem)" }}>
+                  {content.headline}
+                </span>
+              ) : (
+                <>
+                  <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
+                    Welcome to
+                  </span>
+                  <span className="block gradient-text mt-1 pb-2" style={{ fontSize: "clamp(2rem, 5vw, 5.5rem)" }}>
+                    Beerantum!
+                  </span>
+                </>
+              )}
             </h1>
 
             <p className="text-base md:text-lg xl:text-xl text-[var(--brand-text)] leading-relaxed max-w-xl fade-up"
               style={{ animationDelay: "0.3s" }}>
-              We are{" "}
-              <span style={{ color: "#CC00CC", fontWeight: 600 }}>Timecap</span>, a quantum computing team
-              that fuses{" "}
-              <span style={{ color: "#FF00FF", fontWeight: 600 }}>Beerus' transformative force</span>{" "}
-              with{" "}
-              <span style={{ color: "#8B2FC9", fontWeight: 600 }}>Schrödinger's quantum principle.</span>
+              {content?.subtext ? (
+                content.subtext
+              ) : (
+                <>
+                  We are{" "}
+                  <span style={{ color: "#CC00CC", fontWeight: 600 }}>Beerantum</span>, a quantum computing team
+                  that fuses{" "}
+                  <span style={{ color: "#FF00FF", fontWeight: 600 }}>Beerus' transformative force</span>{" "}
+                  with{" "}
+                  <span style={{ color: "#8B2FC9", fontWeight: 600 }}>Schrödinger's quantum principle.</span>
+                </>
+              )}
             </p>
 
             <p className="text-sm xl:text-base text-[var(--brand-text-muted)] fade-up"
               style={{ animationDelay: "0.38s" }}>
               Our mindset:{" "}
-              <strong className="italic text-white">Go beyond what is possible.</strong>
+              <strong className="italic text-white">{content?.tagline || "Go beyond what is possible."}</strong>
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 fade-up" style={{ animationDelay: "0.46s" }}>
@@ -184,7 +199,7 @@ function HeroSection() {
 }
 
 
-function WhatWeDoSection() {
+function WhatWeDoSection({ content }: { content?: Record<string, string> }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const pillars = [
     { icon: Zap, title: "Hackathons", desc: "Organize and participate in competitive quantum hackathons pushing the boundaries of what's possible." },
@@ -205,7 +220,7 @@ function WhatWeDoSection() {
           </h2>
           <div className="section-divider" />
           <p className="text-[var(--brand-text-muted)] leading-relaxed mt-5 text-base xl:text-lg max-w-2xl">
-            We promote hackathons, workshops and pioneering events in quantum computing. Our mission is to deconstruct complex challenges and lead through innovation.
+            {content?.description || "We promote hackathons, workshops and pioneering events in quantum computing. Our mission is to deconstruct complex challenges and lead through innovation."}
           </p>
         </div>
 
@@ -239,7 +254,7 @@ function WhatWeDoSection() {
 }
 
 
-function MissionSection() {
+function MissionSection({ content }: { content?: Record<string, string> }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const values = [
     { icon: Lightbulb, title: "Innovation", desc: "We relentlessly pursue novel approaches to quantum challenges that others haven't attempted.", from: "#8B2FC9", to: "#A020C0" },
@@ -280,9 +295,15 @@ function MissionSection() {
                 <div className="section-divider" />
               </div>
               <p className="text-[var(--brand-text)] leading-relaxed text-base xl:text-lg">
-                To be the leading force in innovation, education and competition in the field of quantum
-                computing. We don't just face challenges —{" "}
-                <span className="font-semibold" style={{ color: "var(--brand-magenta)" }}>we redefine them.</span>
+                {content?.text ? (
+                  content.text
+                ) : (
+                  <>
+                    To be the leading force in innovation, education and competition in the field of quantum
+                    computing. We don't just face challenges —{" "}
+                    <span className="font-semibold" style={{ color: "var(--brand-magenta)" }}>we redefine them.</span>
+                  </>
+                )}
               </p>
               <div className="flex flex-col gap-4">
                 {["Pioneer quantum innovation through hands-on research",
@@ -686,6 +707,23 @@ function ContactSection() {
                   </div>
                 ))}
               </div>
+
+              {/* Brand Socials */}
+              <div className="flex gap-4 pt-2">
+                {[
+                  { Icon: Instagram, href: "https://www.instagram.com/beerantum/" },
+                  { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61586622063433" },
+                  { Icon: Music2, href: "https://vm.tiktok.com/ZS9JjsEFsfkKe-oMR2c/" },
+                  { Icon: Linkedin, href: "https://www.linkedin.com/company/beerantum/" },
+                  { Icon: Youtube, href: "https://youtube.com/@beerantum_official" },
+                ].map(({ Icon, href }, i) => (
+                  <a key={i} href={href} target="_blank" rel="noopener noreferrer" 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 bg-[rgba(139,47,201,0.08)] border border-[rgba(139,47,201,0.15)] text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] hover:border-[rgba(139,47,201,0.3)] hover:scale-110">
+                    <Icon size={18} />
+                  </a>
+                ))}
+              </div>
+
               <div className="flex items-center gap-4 pt-5" style={{ borderTop: "1px solid rgba(139,47,201,0.1)" }}>
                 <span style={{ fontSize: "2.5rem" }}>🐱</span>
                 <p className="text-xs xl:text-sm text-[var(--brand-text-muted)] font-mono italic">
@@ -741,13 +779,21 @@ function ContactSection() {
 
 // ─── MAIN PAGE ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const [content, setContent] = useState<Record<string, Record<string, string>>>({});
+
+  useEffect(() => {
+    contentService.getAll().then(r => {
+      setContent((r.data.data || {}) as Record<string, Record<string, string>>);
+    }).catch(console.error);
+  }, []);
+
   return (
     <div className="w-full min-h-screen">
       <Navbar />
       <main className="w-full">
-        <HeroSection />
-        <WhatWeDoSection />
-        <MissionSection />
+        <HeroSection content={content.hero} />
+        <WhatWeDoSection content={content.whatWeDo} />
+        <MissionSection content={content.mission} />
         <TeamSection />
         <EventsSection />
         <PartnersSection />
