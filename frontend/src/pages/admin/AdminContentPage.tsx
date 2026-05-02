@@ -75,10 +75,16 @@ export default function AdminContentPage() {
         ))}
       </div>
 
-      <div className="mt-6 p-4 rounded-xl border border-[rgba(139,47,201,0.15)] bg-[rgba(139,47,201,0.04)]">
-        <p className="text-xs text-[var(--brand-text-muted)]">
-          <span className="text-[var(--brand-purple)] font-semibold">Tip:</span> Content changes are saved to MongoDB and reflected on the live site immediately. Team members, events, and partners are managed in their respective sections.
+      <div className="mt-6 p-5 rounded-xl border border-[rgba(139,47,201,0.2)] bg-[rgba(139,47,201,0.06)] space-y-3">
+        <p className="text-sm text-white font-bold flex items-center gap-2">
+          <span className="text-lg">✨</span> Text Highlighting Tips
         </p>
+        <ul className="text-xs text-[var(--brand-text-muted)] space-y-2 list-disc pl-4">
+          <li><strong>Headline:</strong> Use <code>|</code> to split white and gradient text. <br/>Example: <code>Welcome to | Beerantum!</code></li>
+          <li><strong>Subtext:</strong> Use <code>[p]text[/p]</code> for <span className="text-[var(--brand-magenta)]">purple</span> highlights.</li>
+          <li><strong>Subtext:</strong> Use <code>[m]text[/m]</code> for <span className="text-[#FF00FF]">magenta</span> highlights.</li>
+          <li>Example: <code>We are [p]Beerantum[/p], a [m]quantum[/m] team.</code></li>
+        </ul>
       </div>
     </div>
   );

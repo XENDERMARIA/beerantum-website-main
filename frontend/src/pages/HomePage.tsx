@@ -6,13 +6,126 @@ import {
   ChevronDown, Zap, BookOpen, Trophy, Users,
   Lightbulb, Handshake, GraduationCap, Calendar, MapPin,
   Clock, ExternalLink, Send, CheckCircle, Mail, Globe, Linkedin, Github, Twitter,
-  Facebook, Instagram, Youtube, Music2,
+  Facebook, Instagram, Youtube, Music2, FileText, X,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { teamService, eventsService, partnersService, contactService, contentService } from "@/services";
 import { cn, formatDateRange, getInitials, truncate, getErrorMessage } from "@/utils";
 import type { TeamMember, Event, Partner, ContactFormData } from "@/types";
+
+
+const parseHeadline = (text: string) => {
+  if (!text.includes("|")) return <span className="block gradient-text mt-1 pb-2 shadow-text" style={{ fontSize: "clamp(1.8rem, 5vw, 5.5rem)" }}>{text}</span>;
+  const [white, gradient] = text.split("|").map(s => s.trim());
+  return (
+    <>
+      <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
+        {white}
+      </span>
+      <span className="block gradient-text mt-1 pb-2" style={{ fontSize: "clamp(2rem, 5vw, 5.5rem)" }}>
+        {gradient}
+      </span>
+    </>
+  );
+};
+
+const parseSubtext = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\[p\].*?\[\/p\]|\[m\].*?\[\/m\])/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("[p]") && part.endsWith("[/p]")) {
+      return <span key={i} className="highlight-purple">{part.slice(3, -4)}</span>;
+    }
+    if (part.startsWith("[m]") && part.endsWith("[/m]")) {
+      return <span key={i} className="highlight-magenta">{part.slice(3, -4)}</span>;
+    }
+    return part;
+  });
+};
+
+
+function MemberDetailModal({ member, onClose }: { member: TeamMember; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div 
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl flex flex-col modal-enter"
+        style={{
+          background: "linear-gradient(145deg, rgba(25,25,35,0.95), rgba(15,15,20,0.98))",
+          border: "1px solid rgba(139,47,201,0.4)",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.7), 0 0 40px rgba(139,47,201,0.15)"
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header Section */}
+        <div className="relative flex-shrink-0 border-b border-[rgba(139,47,201,0.2)]">
+          {member.photoUrl ? (
+            <div className="h-64 sm:h-80 w-full relative">
+              <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,15,20,1)] to-transparent" />
+            </div>
+          ) : (
+            <div className="h-32 sm:h-40 w-full relative overflow-hidden" style={{ background: "var(--brand-dark-2)" }}>
+              <div className="absolute inset-0 opacity-20 grid-bg" />
+              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-[var(--brand-purple)] rounded-full blur-[80px] opacity-30" />
+            </div>
+          )}
+
+          {/* Close Button */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 border border-white/10 text-white/70 flex items-center justify-center hover:bg-[var(--brand-purple)] hover:text-white transition-all z-10 backdrop-blur-md"
+          >
+            <X size={18} />
+          </button>
+
+          {/* Title Info */}
+          <div className={cn("px-6 sm:px-8", member.photoUrl ? "absolute bottom-0 left-0 right-0 pb-6" : "absolute bottom-0 left-0 right-0 pb-6")}>
+            {!member.photoUrl && (
+              <div className="w-16 h-16 rounded-xl mb-4 border border-[rgba(139,47,201,0.3)] shadow-lg flex items-center justify-center text-2xl" 
+                style={{ background: "linear-gradient(135deg,#8B2FC9,#CC00CC)", color: "white", fontFamily: "var(--font-display)", fontWeight: 800 }}>
+                {getInitials(member.name)}
+              </div>
+            )}
+            <h2 className="font-display font-black text-2xl sm:text-3xl text-white uppercase tracking-wider drop-shadow-md">{member.name}</h2>
+            <p className="font-mono text-sm sm:text-base uppercase tracking-[0.2em] mt-1 text-[var(--brand-magenta)] font-bold">{member.role}</p>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8">
+          {member.education && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-[var(--brand-text-muted)] border-b border-[rgba(255,255,255,0.05)] pb-2">
+                <GraduationCap size={18} className="text-[var(--brand-purple)]" />
+                <span className="text-xs font-mono uppercase tracking-[0.15em] font-semibold text-white/60">Education</span>
+              </div>
+              <p className="text-[var(--brand-text)] text-sm sm:text-base">{member.education}</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-[var(--brand-text-muted)] border-b border-[rgba(255,255,255,0.05)] pb-2">
+              <FileText size={18} className="text-[var(--brand-purple)]" />
+              <span className="text-xs font-mono uppercase tracking-[0.15em] font-semibold text-white/60">Biography</span>
+            </div>
+            <div className="text-[var(--brand-text-muted)] text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+              {member.bio || <span className="italic opacity-50">No detailed biography provided for this member yet.</span>}
+            </div>
+          </div>
+
+          {(member.socialLinks?.linkedin || member.socialLinks?.github || member.socialLinks?.twitter) && (
+            <div className="pt-4 flex gap-3">
+              {member.socialLinks?.linkedin && <a href={member.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg flex items-center justify-center bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] text-white/70 hover:text-[var(--brand-magenta)] hover:border-[var(--brand-magenta)] hover:bg-[rgba(255,0,255,0.05)] transition-all"><Linkedin size={18} /></a>}
+              {member.socialLinks?.github && <a href={member.socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg flex items-center justify-center bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] text-white/70 hover:text-[var(--brand-magenta)] hover:border-[var(--brand-magenta)] hover:bg-[rgba(255,0,255,0.05)] transition-all"><Github size={18} /></a>}
+              {member.socialLinks?.twitter && <a href={member.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-lg flex items-center justify-center bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] text-white/70 hover:text-[var(--brand-magenta)] hover:border-[var(--brand-magenta)] hover:bg-[rgba(255,0,255,0.05)] transition-all"><Twitter size={18} /></a>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 
 function HeroSection({ content }: { content?: Record<string, string> }) {
@@ -64,11 +177,7 @@ function HeroSection({ content }: { content?: Record<string, string> }) {
             </div>
 
             <h1 className="font-display font-black uppercase leading-tight fade-up" style={{ animationDelay: "0.2s" }}>
-              {content?.headline ? (
-                <span className="block gradient-text mt-1 pb-2 shadow-text" style={{ fontSize: "clamp(1.8rem, 5vw, 5.5rem)" }}>
-                  {content.headline}
-                </span>
-              ) : (
+              {content?.headline ? parseHeadline(content.headline) : (
                 <>
                   <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
                     Welcome to
@@ -82,9 +191,7 @@ function HeroSection({ content }: { content?: Record<string, string> }) {
 
             <p className="text-base md:text-lg xl:text-xl text-[var(--brand-text)] leading-relaxed max-w-xl fade-up"
               style={{ animationDelay: "0.3s" }}>
-              {content?.subtext ? (
-                content.subtext
-              ) : (
+              {content?.subtext ? parseSubtext(content.subtext) : (
                 <>
                   We are{" "}
                   <span style={{ color: "#CC00CC", fontWeight: 600 }}>Beerantum</span>, a quantum computing team
@@ -333,7 +440,7 @@ function MissionSection({ content }: { content?: Record<string, string> }) {
             <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
               Our Core <span className="gradient-text">Values!</span>
             </h2>
-            <div className="section-divider mx-auto" />
+            <div className="section-divider" style={{ margin: "0.75rem auto" }} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-10">
             {values.map(({ icon: Icon, title, desc, from, to }) => (
@@ -359,6 +466,7 @@ function MissionSection({ content }: { content?: Record<string, string> }) {
 function TeamSection() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
 
   useEffect(() => {
@@ -400,7 +508,8 @@ function TeamSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
             {members.map((m, i) => (
               <div key={m._id}
-                className={cn("brand-card overflow-hidden group flex flex-col transition-all duration-700",
+                onClick={() => setSelectedMember(m)}
+                className={cn("brand-card overflow-hidden group flex flex-col transition-all duration-700 cursor-pointer",
                   inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12")}
                 style={{ transitionDelay: `${0.05 + i * 0.06}s` }}>
                 <div className="relative overflow-hidden" style={{ height: "clamp(160px,18vw,220px)" }}>
@@ -416,23 +525,26 @@ function TeamSection() {
                     <div className="absolute top-3 left-3 text-white text-[10px] font-display font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
                       style={{ background: "linear-gradient(to right,#8B2FC9,#CC00CC)" }}>Lead</div>
                   )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white font-display text-xs uppercase tracking-[0.2em] border border-white/30 px-4 py-2 rounded-full backdrop-blur-sm">View Profile</span>
+                  </div>
                 </div>
                 <div className="p-5 xl:p-6 flex flex-col gap-2 flex-1">
                   <h3 className="font-display font-bold text-white text-sm xl:text-base uppercase tracking-wider">{m.name}</h3>
                   <p className="text-xs xl:text-sm font-mono uppercase tracking-widest" style={{ color: "var(--brand-magenta)" }}>{m.role}</p>
                   <p className="text-xs xl:text-sm text-[var(--brand-text-muted)]">· {m.education}</p>
                   {m.bio && <p className="text-xs xl:text-sm text-[var(--brand-text-muted)] line-clamp-2 mt-1">{m.bio}</p>}
-                  {(m.socialLinks?.linkedin || m.socialLinks?.github || m.socialLinks?.twitter) && (
-                    <div className="flex gap-3 mt-auto pt-3" style={{ borderTop: "1px solid rgba(139,47,201,0.1)" }}>
-                      {m.socialLinks?.linkedin && <a href={m.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] transition-colors"><Linkedin size={14} /></a>}
-                      {m.socialLinks?.github && <a href={m.socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] transition-colors"><Github size={14} /></a>}
-                      {m.socialLinks?.twitter && <a href={m.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-text-muted)] hover:text-[var(--brand-magenta)] transition-colors"><Twitter size={14} /></a>}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
           </div>
+        )}
+
+        {selectedMember && (
+          <MemberDetailModal 
+            member={selectedMember} 
+            onClose={() => setSelectedMember(null)} 
+          />
         )}
       </div>
     </section>
@@ -441,7 +553,7 @@ function TeamSection() {
 
 // ─── EVENTS ────────────────────────────────────────────────────────────────────
 function EventsSection() {
-  const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
+  const [tab, setTab] = useState<"upcoming" | "past">("past");
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
@@ -472,7 +584,7 @@ function EventsSection() {
         </div>
 
         <div className="flex gap-3 mb-10">
-          {(["upcoming", "past"] as const).map(t => (
+          {(["past", "upcoming"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={cn(
                 "font-display text-xs xl:text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-lg border transition-all duration-200",
@@ -574,45 +686,70 @@ function PartnersSection() {
     <section id="partners" className="w-full py-24 md:py-32 xl:py-36 relative overflow-hidden"
       style={{ background: "var(--brand-dark-2)" }}>
       <div className="absolute inset-0 w-full h-full grid-bg opacity-30" />
+      {/* Decorative glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 pointer-events-none"
+        style={{ background: "radial-gradient(circle, var(--brand-purple) 0%, transparent 70%)" }} />
+      
       <div ref={ref} className="page-container relative z-10">
         <div className={cn("text-center mb-16 transition-all duration-700", inView ? "opacity-100" : "opacity-0")}>
-          <span className="font-mono text-xs text-[var(--brand-text-muted)] uppercase tracking-[0.25em]">Powered by</span>
+          <span className="font-mono text-xs text-[var(--brand-text-muted)] uppercase tracking-[0.25em]">Our Global Network</span>
           <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
-            Our Partners <span className="gradient-text">&amp; Sponsors</span>
+            Partners <span className="gradient-text">&amp; Institutions</span>
           </h2>
-          <div className="section-divider mx-auto" />
+          <div className="section-divider" style={{ margin: "0.75rem auto" }} />
+          <p className="text-[var(--brand-text-muted)] mt-5 max-w-2xl mx-auto text-base xl:text-lg">
+            The collective's leadership and members represent a network of premier research institutions and industry partners across four continents.
+          </p>
         </div>
         {partners.length === 0 ? (
           <p className="text-center text-[var(--brand-text-muted)] text-sm">Partners will appear here once added via the admin panel.</p>
         ) : (
-          <div className="flex flex-wrap justify-center gap-6 xl:gap-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 xl:gap-5">
             {partners.map((p, i) => (
-              <div key={p._id}
-                className={cn("relative rounded-2xl px-10 py-6 flex items-center justify-center group transition-all duration-300",
-                  inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}
-                style={{
-                  transitionDelay: `${0.1 + i * 0.1}s`,
-                  background: "rgba(26,26,46,0.85)",
-                  border: "1px solid rgba(139,47,201,0.2)",
-                  minWidth: "160px",
-                }}>
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded border"
-                  style={{
-                    background: "var(--brand-dark-2)",
-                    color: p.tier === "platinum" ? "#D1D5DB" : p.tier === "gold" ? "#FBBF24" : "var(--brand-purple)",
-                    borderColor: p.tier === "platinum" ? "rgba(209,213,219,0.3)" : p.tier === "gold" ? "rgba(251,191,36,0.3)" : "rgba(139,47,201,0.3)",
-                  }}>{p.tier}</div>
-                {p.logoUrl ? (
-                  <img src={p.logoUrl} alt={p.name} className="h-10 xl:h-14 w-auto object-contain" />
-                ) : p.website ? (
-                  <a href={p.website} target="_blank" rel="noopener noreferrer"
-                    className="font-display font-bold text-xl xl:text-2xl text-white tracking-wide hover:text-[var(--brand-magenta)] transition-colors">
-                    {p.logoText || p.name}
-                  </a>
-                ) : (
-                  <span className="font-display font-bold text-xl xl:text-2xl text-white tracking-wide">{p.logoText || p.name}</span>
+              <a
+                key={p._id}
+                href={p.website || undefined}
+                target={p.website ? "_blank" : undefined}
+                rel={p.website ? "noopener noreferrer" : undefined}
+                className={cn(
+                  "group relative rounded-xl p-5 flex flex-col items-center justify-center text-center gap-3 transition-all duration-500 min-h-[120px]",
+                  p.website ? "cursor-pointer" : "cursor-default",
+                  inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 )}
-              </div>
+                style={{
+                  transitionDelay: `${0.05 + i * 0.04}s`,
+                  background: "rgba(20,20,36,0.7)",
+                  border: "1px solid rgba(139,47,201,0.15)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(139,47,201,0.5)";
+                  (e.currentTarget as HTMLElement).style.background = "rgba(139,47,201,0.08)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 30px rgba(139,47,201,0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(139,47,201,0.15)";
+                  (e.currentTarget as HTMLElement).style.background = "rgba(20,20,36,0.7)";
+                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                }}
+              >
+                {p.logoUrl ? (
+                  <img src={p.logoUrl} alt={p.name}
+                    className="h-10 xl:h-12 w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg, rgba(139,47,201,0.2), rgba(204,0,204,0.15))", border: "1px solid rgba(139,47,201,0.2)" }}>
+                    <Handshake size={18} className="text-[var(--brand-purple)] opacity-70" />
+                  </div>
+                )}
+                <span className="font-display font-bold text-[11px] xl:text-xs text-white/80 uppercase tracking-wider leading-tight group-hover:text-white transition-colors">
+                  {p.name}
+                </span>
+                {p.website && (
+                  <ExternalLink size={10} className="absolute top-3 right-3 text-[var(--brand-text-muted)] opacity-0 group-hover:opacity-60 transition-opacity" />
+                )}
+              </a>
             ))}
           </div>
         )}
@@ -620,6 +757,7 @@ function PartnersSection() {
     </section>
   );
 }
+
 
 // ─── GET INVOLVED + CONTACT FORM ──────────────────────────────────────────────
 function ContactSection() {
@@ -652,7 +790,7 @@ function ContactSection() {
           <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
             Get <span className="gradient-text">Involved</span>
           </h2>
-          <div className="section-divider mx-auto" />
+          <div className="section-divider" style={{ margin: "0.75rem auto" }} />
           <p className="text-[var(--brand-text-muted)] mt-6 max-w-2xl mx-auto text-base xl:text-lg">
             Join the Beerantum community and be part of our pioneering team. Plenty of ways to make an impact.
           </p>

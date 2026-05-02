@@ -23,7 +23,7 @@ const teamMemberSchema = new mongoose.Schema(
     bio: {
       type: String,
       trim: true,
-      maxlength: [500, "Bio too long"],
+      maxlength: [2000, "Bio too long"],
     },
     
     photoUrl: {

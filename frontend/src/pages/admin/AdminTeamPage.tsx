@@ -166,9 +166,9 @@ function MemberModal({ member, onClose, onSave }: { member?: TeamMember; onClose
                   rows={3}
                   placeholder="e.g. Pioneering researcher in quantum algorithms with a focus on error correction. Passionate about making quantum computing accessible."
                   className="brand-input resize-none"
-                  maxLength={400}
+                  maxLength={2000}
                 />
-                <p className="text-[10px] text-[var(--brand-text-muted)]">Max 400 characters</p>
+                <p className="text-[10px] text-[var(--brand-text-muted)]">Max 2000 characters. You can use this for the complete details shown in the profile popover.</p>
               </div>
             </div>
           </div>

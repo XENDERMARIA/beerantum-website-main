@@ -146,6 +146,33 @@ body {
   border-radius: 2px;
   margin: 0.75rem 0;
 }
+.section-divider.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.highlight-purple { color: #CC00CC; font-weight: 600; }
+.highlight-magenta { color: #FF00FF; font-weight: 600; }
+.highlight-gradient { 
+  background: linear-gradient(135deg, #8B2FC9 0%, #CC00CC 50%, #FF00FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.glass-modal {
+  background: rgba(15, 15, 26, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 47, 201, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-enter { animation: modalEnter 0.3s ease-out forwards; }
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 
 .photo-placeholder {
