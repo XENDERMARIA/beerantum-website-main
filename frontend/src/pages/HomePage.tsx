@@ -13,6 +13,7 @@ import Footer from "@/components/layout/Footer";
 import { teamService, eventsService, partnersService, contactService, contentService } from "@/services";
 import { cn, formatDateRange, getInitials, truncate, getErrorMessage } from "@/utils";
 import type { TeamMember, Event, Partner, ContactFormData } from "@/types";
+import { Skeleton, TeamMemberSkeleton, EventSkeleton, PartnerSkeleton, ContentSkeleton } from "@/components/ui/Skeleton";
 
 
 const parseHeadline = (text: string) => {
@@ -128,7 +129,7 @@ function MemberDetailModal({ member, onClose }: { member: TeamMember; onClose: (
 }
 
 
-function HeroSection({ content }: { content?: Record<string, string> }) {
+function HeroSection({ content, loading }: { content?: Record<string, string>; loading?: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -176,53 +177,59 @@ function HeroSection({ content }: { content?: Record<string, string> }) {
               </span>
             </div>
 
-            <h1 className="font-display font-black uppercase leading-tight fade-up" style={{ animationDelay: "0.2s" }}>
-              {content?.headline ? parseHeadline(content.headline) : (
-                <>
-                  <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
-                    Welcome to
-                  </span>
-                  <span className="block gradient-text mt-1 pb-2" style={{ fontSize: "clamp(2rem, 5vw, 5.5rem)" }}>
-                    Beerantum!
-                  </span>
-                </>
-              )}
-            </h1>
+            {(loading || !content) ? (
+              <ContentSkeleton />
+            ) : (
+              <>
+                <h1 className="font-display font-black uppercase leading-tight fade-up" style={{ animationDelay: "0.2s" }}>
+                  {content?.headline ? parseHeadline(content.headline) : (
+                    <>
+                      <span className="block text-white" style={{ fontSize: "clamp(1.8rem, 4vw, 4.5rem)" }}>
+                        Welcome to
+                      </span>
+                      <span className="block gradient-text mt-1 pb-2" style={{ fontSize: "clamp(2rem, 5vw, 5.5rem)" }}>
+                        Beerantum!
+                      </span>
+                    </>
+                  )}
+                </h1>
 
-            <p className="text-base md:text-lg xl:text-xl text-[var(--brand-text)] leading-relaxed max-w-xl fade-up"
-              style={{ animationDelay: "0.3s" }}>
-              {content?.subtext ? parseSubtext(content.subtext) : (
-                <>
-                  We are{" "}
-                  <span style={{ color: "#CC00CC", fontWeight: 600 }}>Beerantum</span>, a quantum computing team
-                  that fuses{" "}
-                  <span style={{ color: "#FF00FF", fontWeight: 600 }}>Beerus' transformative force</span>{" "}
-                  with{" "}
-                  <span style={{ color: "#8B2FC9", fontWeight: 600 }}>Schrödinger's quantum principle.</span>
-                </>
-              )}
-            </p>
+                <p className="text-base md:text-lg xl:text-xl text-[var(--brand-text)] leading-relaxed max-w-xl fade-up"
+                  style={{ animationDelay: "0.3s" }}>
+                  {content?.subtext ? parseSubtext(content.subtext) : (
+                    <>
+                      We are{" "}
+                      <span style={{ color: "#CC00CC", fontWeight: 600 }}>Beerantum</span>, a quantum computing team
+                      that fuses{" "}
+                      <span style={{ color: "#FF00FF", fontWeight: 600 }}>Beerus' transformative force</span>{" "}
+                      with{" "}
+                      <span style={{ color: "#8B2FC9", fontWeight: 600 }}>Schrödinger's quantum principle.</span>
+                    </>
+                  )}
+                </p>
 
-            <p className="text-sm xl:text-base text-[var(--brand-text-muted)] fade-up"
-              style={{ animationDelay: "0.38s" }}>
-              Our mindset:{" "}
-              <strong className="italic text-white">{content?.tagline || "Go beyond what is possible."}</strong>
-            </p>
+                <p className="text-sm xl:text-base text-[var(--brand-text-muted)] fade-up"
+                  style={{ animationDelay: "0.38s" }}>
+                  Our mindset:{" "}
+                  <strong className="italic text-white">{content?.tagline || "Go beyond what is possible."}</strong>
+                </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 fade-up" style={{ animationDelay: "0.46s" }}>
-              <button
-                onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
-                className="btn-primary text-sm py-3 px-8"
-              >
-                Discover More
-              </button>
-              <button
-                onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}
-                className="btn-outline text-sm py-3 px-8"
-              >
-                Our Events
-              </button>
-            </div>
+                <div className="flex flex-col sm:flex-row gap-4 fade-up" style={{ animationDelay: "0.46s" }}>
+                  <button
+                    onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+                    className="btn-primary text-sm py-3 px-8"
+                  >
+                    Discover More
+                  </button>
+                  <button
+                    onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}
+                    className="btn-outline text-sm py-3 px-8"
+                  >
+                    Our Events
+                  </button>
+                </div>
+              </>
+            )}
 
             {}
             <div className="grid grid-cols-3 gap-8 mt-2 pt-8 fade-up"
@@ -306,7 +313,7 @@ function HeroSection({ content }: { content?: Record<string, string> }) {
 }
 
 
-function WhatWeDoSection({ content }: { content?: Record<string, string> }) {
+function WhatWeDoSection({ content, loading }: { content?: Record<string, string>; loading?: boolean }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const pillars = [
     { icon: Zap, title: "Hackathons", desc: "Organize and participate in competitive quantum hackathons pushing the boundaries of what's possible." },
@@ -327,7 +334,11 @@ function WhatWeDoSection({ content }: { content?: Record<string, string> }) {
           </h2>
           <div className="section-divider" />
           <p className="text-[var(--brand-text-muted)] leading-relaxed mt-5 text-base xl:text-lg max-w-2xl">
-            {content?.description || "We promote hackathons, workshops and pioneering events in quantum computing. Our mission is to deconstruct complex challenges and lead through innovation."}
+            {(loading || !content) ? (
+              <Skeleton className="h-6 w-full opacity-20" />
+            ) : (
+              content.description || "We promote hackathons, workshops and pioneering events in quantum computing. Our mission is to deconstruct complex challenges and lead through innovation."
+            )}
           </p>
         </div>
 
@@ -361,7 +372,7 @@ function WhatWeDoSection({ content }: { content?: Record<string, string> }) {
 }
 
 
-function MissionSection({ content }: { content?: Record<string, string> }) {
+function MissionSection({ content, loading }: { content?: Record<string, string>; loading?: boolean }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const values = [
     { icon: Lightbulb, title: "Innovation", desc: "We relentlessly pursue novel approaches to quantum challenges that others haven't attempted.", from: "#8B2FC9", to: "#A020C0" },
@@ -402,7 +413,9 @@ function MissionSection({ content }: { content?: Record<string, string> }) {
                 <div className="section-divider" />
               </div>
               <p className="text-[var(--brand-text)] leading-relaxed text-base xl:text-lg">
-                {content?.text ? (
+                {(loading || !content) ? (
+                  <ContentSkeleton />
+                ) : content.text ? (
                   content.text
                 ) : (
                   <>
@@ -495,7 +508,7 @@ function TeamSection() {
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-72 rounded-xl animate-pulse" style={{ background: "rgba(139,47,201,0.06)" }} />
+              <TeamMemberSkeleton key={i} />
             ))}
           </div>
         ) : members.length === 0 ? (
@@ -601,7 +614,7 @@ function EventsSection() {
 
         {loading ? (
           <div className="flex flex-col gap-6">
-            {[...Array(2)].map((_, i) => <div key={i} className="h-48 rounded-xl animate-pulse" style={{ background: "rgba(139,47,201,0.06)" }} />)}
+            {[...Array(2)].map((_, i) => <EventSkeleton key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20">
@@ -674,12 +687,14 @@ function EventsSection() {
 // ─── PARTNERS ──────────────────────────────────────────────────────────────────
 function PartnersSection() {
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [loading, setLoading] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
 
   useEffect(() => {
     partnersService.getAll()
       .then(r => setPartners(r.data.data || []))
-      .catch(() => setPartners([]));
+      .catch(() => setPartners([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -701,7 +716,11 @@ function PartnersSection() {
             The collective's leadership and members represent a network of premier research institutions and industry partners across four continents.
           </p>
         </div>
-        {partners.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 xl:gap-5">
+            {[...Array(10)].map((_, i) => <PartnerSkeleton key={i} />)}
+          </div>
+        ) : partners.length === 0 ? (
           <p className="text-center text-[var(--brand-text-muted)] text-sm">Partners will appear here once added via the admin panel.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 xl:gap-5">
@@ -918,20 +937,21 @@ function ContactSection() {
 // ─── MAIN PAGE ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const [content, setContent] = useState<Record<string, Record<string, string>>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     contentService.getAll().then(r => {
       setContent((r.data.data || {}) as Record<string, Record<string, string>>);
-    }).catch(console.error);
+    }).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="w-full min-h-screen">
       <Navbar />
       <main className="w-full">
-        <HeroSection content={content.hero} />
-        <WhatWeDoSection content={content.whatWeDo} />
-        <MissionSection content={content.mission} />
+        <HeroSection content={content.hero} loading={loading} />
+        <WhatWeDoSection content={content.whatWeDo} loading={loading} />
+        <MissionSection content={content.mission} loading={loading} />
         <TeamSection />
         <EventsSection />
         <PartnersSection />
