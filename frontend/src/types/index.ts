@@ -118,3 +118,64 @@ export interface ContactFormData {
   subject: string;
   message: string;
 }
+
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+
+export interface Achievement {
+  _id: string;
+  title: string;
+  placement: string;
+  year: number;
+  description?: string;
+  competitionUrl?: string;
+  imageUrl?: string;
+  order?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AchievementFormData = Omit<Achievement, "_id" | "isActive" | "createdAt" | "updatedAt">;
+
+
+// ─── Advisors ─────────────────────────────────────────────────────────────────
+
+export interface Advisor {
+  _id: string;
+  name: string;
+  title?: string;
+  affiliation?: string;
+  bio?: string;
+  photoUrl?: string;
+  website?: string;
+  socialLinks?: { linkedin?: string; github?: string; twitter?: string };
+  order?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type AdvisorFormData = Omit<Advisor, "_id" | "isActive" | "createdAt" | "updatedAt">;
+
+
+// ─── Publications ─────────────────────────────────────────────────────────────
+
+export interface Publication {
+  _id: string;
+  title: string;
+  authors: string[];
+  publishedIn?: string;
+  year: number;
+  abstract?: string;
+  url?: string;
+  doi?: string;
+  tags: string[];
+  order?: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PublicationFormData = Omit<Publication, "_id" | "isActive" | "createdAt" | "updatedAt">;
+

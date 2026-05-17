@@ -73,6 +73,9 @@ app.use("/api/partners", require("./routes/partners.routes"));
 app.use("/api/contact", require("./routes/contact.routes"));
 app.use("/api/content", require("./routes/content.routes"));
 app.use("/api/upload", require("./routes/upload.routes"));
+app.use("/api/achievements", require("./routes/achievements.routes"));
+app.use("/api/advisors", require("./routes/advisors.routes"));
+app.use("/api/publications", require("./routes/publications.routes"));
 
 
 
