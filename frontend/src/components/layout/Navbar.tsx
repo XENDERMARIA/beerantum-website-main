@@ -5,8 +5,11 @@ import { cn } from "@/utils";
 const NAV_ITEMS = [
   { label: "About", href: "#about" },
   { label: "Team", href: "#team" },
+  { label: "Advisors", href: "#advisors" },
   { label: "Events", href: "#events" },
+  { label: "Achievements", href: "#achievements" },
   { label: "Partners", href: "#partners" },
+  { label: "Publications", href: "#publications" },
   { label: "Involved", href: "#involved" },
 ];
 
@@ -18,7 +21,7 @@ export default function Navbar() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 20);
-      const sections = ["about", "team", "events", "partners", "involved", "contact"];
+      const sections = ["about", "team", "advisors", "events", "achievements", "partners", "publications", "involved", "contact"];
       for (const s of [...sections].reverse()) {
         const el = document.getElementById(s);
         if (el && window.scrollY >= el.offsetTop - 120) { setActive(s); break; }

@@ -29,6 +29,10 @@ const publicationSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageUrl: {
+      type: String,
+      trim: true,
+    },
     doi: {
       type: String,
       trim: true,

@@ -2,6 +2,8 @@ import api from "./api";
 import type {
   ApiResponse, User, TeamMember, TeamMemberFormData,
   Event, EventFormData, Partner, Contact, ContactFormData,
+  Achievement, AchievementFormData, Advisor, AdvisorFormData,
+  Publication, PublicationFormData,
 } from "@/types";
 
 
@@ -81,3 +83,34 @@ export const contentService = {
   upsert: (key: string, section: string, data: unknown) =>
     api.put(`/content/${key}`, { section, data }),
 };
+
+
+
+export const achievementsService = {
+  getAll: () => api.get<ApiResponse<Achievement[]>>("/achievements"),
+  create: (data: AchievementFormData) => api.post<ApiResponse<Achievement>>("/achievements", data),
+  update: (id: string, data: Partial<AchievementFormData>) =>
+    api.put<ApiResponse<Achievement>>(`/achievements/${id}`, data),
+  remove: (id: string) => api.delete(`/achievements/${id}`),
+};
+
+
+
+export const advisorsService = {
+  getAll: () => api.get<ApiResponse<Advisor[]>>("/advisors"),
+  create: (data: AdvisorFormData) => api.post<ApiResponse<Advisor>>("/advisors", data),
+  update: (id: string, data: Partial<AdvisorFormData>) =>
+    api.put<ApiResponse<Advisor>>(`/advisors/${id}`, data),
+  remove: (id: string) => api.delete(`/advisors/${id}`),
+};
+
+
+
+export const publicationsService = {
+  getAll: () => api.get<ApiResponse<Publication[]>>("/publications"),
+  create: (data: PublicationFormData) => api.post<ApiResponse<Publication>>("/publications", data),
+  update: (id: string, data: Partial<PublicationFormData>) =>
+    api.put<ApiResponse<Publication>>(`/publications/${id}`, data),
+  remove: (id: string) => api.delete(`/publications/${id}`),
+};
+

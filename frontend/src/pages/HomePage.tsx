@@ -6,13 +6,13 @@ import {
   ChevronDown, Zap, BookOpen, Trophy, Users,
   Lightbulb, Handshake, GraduationCap, Calendar, MapPin,
   Clock, ExternalLink, Send, CheckCircle, Mail, Globe, Linkedin, Github, Twitter,
-  Facebook, Instagram, Youtube, Music2, FileText, X,
+  Facebook, Instagram, Youtube, Music2, FileText, X, Award, Search, Medal,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { teamService, eventsService, partnersService, contactService, contentService } from "@/services";
+import { teamService, eventsService, partnersService, contactService, contentService, achievementsService, advisorsService, publicationsService } from "@/services";
 import { cn, formatDateRange, getInitials, truncate, getErrorMessage } from "@/utils";
-import type { TeamMember, Event, Partner, ContactFormData } from "@/types";
+import type { TeamMember, Event, Partner, ContactFormData, Achievement, Advisor, Publication } from "@/types";
 import { Skeleton, TeamMemberSkeleton, EventSkeleton, PartnerSkeleton, ContentSkeleton } from "@/components/ui/Skeleton";
 
 
@@ -778,6 +778,295 @@ function PartnersSection() {
 }
 
 
+// ─── ACHIEVEMENTS ────────────────────────────────────────────────────────────
+function AchievementsSection() {
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
+
+  useEffect(() => {
+    achievementsService.getAll()
+      .then(r => setAchievements(r.data.data || []))
+      .catch(() => setAchievements([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const getPlacementGradient = (placement: string) => {
+    const l = placement.toLowerCase();
+    if (l.includes("1st") || l.includes("first")) return "linear-gradient(135deg, #FFD700, #FFA000)";
+    if (l.includes("2nd") || l.includes("second")) return "linear-gradient(135deg, #C0C0C0, #9E9E9E)";
+    if (l.includes("3rd") || l.includes("third")) return "linear-gradient(135deg, #CD7F32, #8B4513)";
+    return "linear-gradient(135deg, #8B2FC9, #CC00CC)";
+  };
+
+
+
+  return (
+    <section id="achievements" className="w-full py-24 md:py-32 xl:py-36 relative overflow-hidden"
+      style={{ background: "var(--brand-dark-1)" }}>
+      <div className="absolute inset-0 w-full h-full grid-bg opacity-25" />
+      <div ref={ref} className="page-container relative z-10">
+        <div className={cn("text-center mb-14 transition-all duration-700", inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}>
+          <span className="font-mono text-xs text-[var(--brand-text-muted)] uppercase tracking-[0.25em]">Our Track Record</span>
+          <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
+            Achievements <span className="gradient-text">& Awards</span>
+          </h2>
+          <div className="section-divider" style={{ margin: "0.75rem auto" }} />
+          <p className="text-[var(--brand-text-muted)] mt-5 max-w-2xl mx-auto text-base xl:text-lg">
+            Beerantum has secured top rankings in several high-profile global competitions.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-[var(--brand-purple)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-8">
+            {achievements.map((a, i) => (
+              <div key={a._id}
+                className={cn("brand-card overflow-hidden group transition-all duration-700 hover:-translate-y-1",
+                  inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12")}
+                style={{ transitionDelay: `${0.1 + i * 0.1}s` }}>
+                <div className="h-1.5" style={{ background: getPlacementGradient(a.placement) }} />
+                <div className="p-6 xl:p-8 flex gap-5">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: getPlacementGradient(a.placement), boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>
+                    <Trophy size={24} className="text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full text-white"
+                        style={{ background: getPlacementGradient(a.placement) }}>
+                        {a.placement}
+                      </span>
+                      <span className="text-xs text-[var(--brand-text-muted)]">{a.year}</span>
+                    </div>
+                    <h3 className="font-display text-sm xl:text-base font-bold text-white uppercase tracking-wider">{a.title}</h3>
+                    {a.description && (
+                      <p className="text-xs xl:text-sm text-[var(--brand-text-muted)] mt-2 leading-relaxed">{a.description}</p>
+                    )}
+                    {a.competitionUrl && (
+                      <a href={a.competitionUrl} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-[var(--brand-magenta)] hover:text-white mt-3 transition-colors">
+                        Learn more <ExternalLink size={11} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+
+// ─── ADVISORS ────────────────────────────────────────────────────────────────
+function AdvisorsSection() {
+  const [advisors, setAdvisors] = useState<Advisor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
+  const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
+
+  useEffect(() => {
+    advisorsService.getAll()
+      .then(r => setAdvisors(r.data.data || []))
+      .catch(() => setAdvisors([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+
+
+  return (
+    <section id="advisors" className="w-full py-24 md:py-32 xl:py-36 relative overflow-hidden"
+      style={{ background: "var(--brand-dark-1)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="absolute inset-0 w-full h-full grid-bg opacity-20" />
+      <div ref={ref} className="page-container relative z-10">
+        <div className={cn("mb-12 transition-all duration-700", inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}>
+          <span className="font-mono text-xs text-[var(--brand-text-muted)] uppercase tracking-[0.25em]">Expert Guidance</span>
+          <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
+            Our <span className="gradient-text">Advisors</span>
+          </h2>
+          <div className="section-divider" />
+          <p className="text-[var(--brand-text-muted)] mt-5 max-w-2xl text-base xl:text-lg">
+            Distinguished researchers and industry leaders guiding our quantum journey.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-[var(--brand-purple)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
+            {advisors.map((a, i) => (
+              <div key={a._id}
+                onClick={() => setSelectedAdvisor(a)}
+                className={cn("brand-card overflow-hidden group flex flex-col transition-all duration-700 cursor-pointer",
+                  inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12")}
+                style={{ transitionDelay: `${0.05 + i * 0.06}s` }}>
+                <div className="relative overflow-hidden" style={{ height: "clamp(160px,18vw,220px)" }}>
+                  {a.photoUrl ? (
+                    <img src={a.photoUrl} alt={a.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="photo-placeholder w-full h-full text-xl xl:text-2xl">{getInitials(a.name)}</div>
+                  )}
+                  <div className="absolute top-3 left-3 text-white text-[10px] font-display font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                    style={{ background: "linear-gradient(to right,#059669,#10B981)" }}>Advisor</div>
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white font-display text-xs uppercase tracking-[0.2em] border border-white/30 px-4 py-2 rounded-full backdrop-blur-sm">View Profile</span>
+                  </div>
+                </div>
+                <div className="p-5 xl:p-6 flex flex-col gap-2 flex-1">
+                  <h3 className="font-display font-bold text-white text-sm xl:text-base uppercase tracking-wider">{a.name}</h3>
+                  {a.title && <p className="text-xs xl:text-sm font-mono uppercase tracking-widest" style={{ color: "#10B981" }}>{a.title}</p>}
+                  {a.affiliation && <p className="text-xs xl:text-sm text-[var(--brand-text-muted)]">· {a.affiliation}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Advisor Detail Modal */}
+      {selectedAdvisor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedAdvisor(null)}>
+          <div className="glass-modal w-full max-w-md rounded-2xl modal-enter overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="relative p-6" style={{ background: "linear-gradient(135deg, rgba(5,150,105,0.15), rgba(16,185,129,0.05))" }}>
+              <button onClick={() => setSelectedAdvisor(null)} className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-[var(--brand-text-muted)] hover:text-white hover:bg-white/10 transition-all"><X size={16} /></button>
+              <div className="flex items-center gap-4">
+                {selectedAdvisor.photoUrl ? (
+                  <img src={selectedAdvisor.photoUrl} alt={selectedAdvisor.name} className="w-16 h-16 rounded-xl object-cover" />
+                ) : (
+                  <div className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-display font-bold" style={{ background: "linear-gradient(135deg,#059669,#10B981)" }}>{getInitials(selectedAdvisor.name)}</div>
+                )}
+                <div>
+                  <h3 className="font-display text-lg font-bold text-white uppercase tracking-wider">{selectedAdvisor.name}</h3>
+                  {selectedAdvisor.title && <p className="text-sm font-mono uppercase tracking-widest" style={{ color: "#10B981" }}>{selectedAdvisor.title}</p>}
+                </div>
+              </div>
+            </div>
+            <div className="p-6 flex flex-col gap-4">
+              {selectedAdvisor.affiliation && (
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--brand-text-muted)] flex items-center gap-1.5 mb-1"><GraduationCap size={12} /> Affiliation</p>
+                  <p className="text-sm text-[var(--brand-text)]">{selectedAdvisor.affiliation}</p>
+                </div>
+              )}
+              {selectedAdvisor.bio && (
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--brand-text-muted)] flex items-center gap-1.5 mb-1"><FileText size={12} /> Biography</p>
+                  <p className="text-sm text-[var(--brand-text)] leading-relaxed">{selectedAdvisor.bio}</p>
+                </div>
+              )}
+              {(selectedAdvisor.socialLinks?.linkedin || selectedAdvisor.socialLinks?.github || selectedAdvisor.socialLinks?.twitter || selectedAdvisor.website) && (
+                <div className="flex gap-3 pt-2">
+                  {selectedAdvisor.socialLinks?.linkedin && <a href={selectedAdvisor.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--brand-text-muted)] hover:text-white hover:bg-white/10 transition-all"><Linkedin size={16} /></a>}
+                  {selectedAdvisor.socialLinks?.github && <a href={selectedAdvisor.socialLinks.github} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--brand-text-muted)] hover:text-white hover:bg-white/10 transition-all"><Github size={16} /></a>}
+                  {selectedAdvisor.socialLinks?.twitter && <a href={selectedAdvisor.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--brand-text-muted)] hover:text-white hover:bg-white/10 transition-all"><Twitter size={16} /></a>}
+                  {selectedAdvisor.website && <a href={selectedAdvisor.website} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--brand-text-muted)] hover:text-white hover:bg-white/10 transition-all"><Globe size={16} /></a>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+
+// ─── PUBLICATIONS ────────────────────────────────────────────────────────────
+function PublicationsSection() {
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
+
+  useEffect(() => {
+    publicationsService.getAll()
+      .then(r => setPublications(r.data.data || []))
+      .catch(() => setPublications([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+
+
+  return (
+    <section id="publications" className="w-full py-24 md:py-32 xl:py-36 relative overflow-hidden"
+      style={{ background: "var(--brand-black)", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="absolute inset-0 w-full h-full grid-bg opacity-20" />
+      <div ref={ref} className="page-container relative z-10">
+        <div className={cn("text-center mb-14 transition-all duration-700", inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8")}>
+          <span className="font-mono text-xs text-[var(--brand-text-muted)] uppercase tracking-[0.25em]">Research Output</span>
+          <h2 className="section-title text-3xl md:text-4xl xl:text-5xl text-white mt-3">
+            Our <span className="gradient-text">Publications</span>
+          </h2>
+          <div className="section-divider" style={{ margin: "0.75rem auto" }} />
+          <p className="text-[var(--brand-text-muted)] mt-5 max-w-2xl mx-auto text-base xl:text-lg">
+            Peer-reviewed research and technical contributions from the Beerantum collective.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-2 border-[var(--brand-purple)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5 max-w-4xl mx-auto">
+            {publications.map((p, i) => (
+              <div key={p._id}
+                className={cn("brand-card p-6 xl:p-8 group transition-all duration-700 hover:-translate-y-0.5",
+                  inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12")}
+                style={{ transitionDelay: `${0.1 + i * 0.08}s` }}>
+                <div className="flex gap-5">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                    style={{ background: "linear-gradient(135deg, rgba(139,47,201,0.15), rgba(204,0,204,0.1))", border: "1px solid rgba(139,47,201,0.2)" }}>
+                    <BookOpen size={20} className="text-[var(--brand-purple)]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display text-sm xl:text-base font-bold text-white tracking-wide leading-snug">{p.title}</h3>
+                    {p.authors.length > 0 && (
+                      <p className="text-xs text-[var(--brand-text-muted)] mt-1.5">{p.authors.join(", ")}</p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                      {p.publishedIn && <span className="text-xs font-mono text-[var(--brand-magenta)]">{p.publishedIn}</span>}
+                      <span className="text-xs text-[var(--brand-text-muted)]">{p.year}</span>
+                      {p.doi && <span className="text-[10px] text-[var(--brand-text-muted)] font-mono">DOI: {p.doi}</span>}
+                    </div>
+                    {p.abstract && (
+                      <p className="text-xs text-[var(--brand-text-muted)] mt-3 leading-relaxed line-clamp-2">{p.abstract}</p>
+                    )}
+                    <div className="flex items-center gap-3 mt-3">
+                      {p.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {p.tags.slice(0, 4).map(t => (
+                            <span key={t} className="text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full text-[var(--brand-purple)]"
+                              style={{ background: "rgba(139,47,201,0.1)", border: "1px solid rgba(139,47,201,0.2)" }}>{t}</span>
+                          ))}
+                        </div>
+                      )}
+                      {p.url && (
+                        <a href={p.url} target="_blank" rel="noopener noreferrer"
+                          className="ml-auto inline-flex items-center gap-1.5 text-xs text-[var(--brand-magenta)] hover:text-white transition-colors flex-shrink-0">
+                          Read Paper <ExternalLink size={11} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+
 // ─── GET INVOLVED + CONTACT FORM ──────────────────────────────────────────────
 function ContactSection() {
   const [submitState, setSubmitState] = useState<"idle" | "loading" | "success">("idle");
@@ -953,8 +1242,11 @@ export default function HomePage() {
         <WhatWeDoSection content={content.whatWeDo} loading={loading} />
         <MissionSection content={content.mission} loading={loading} />
         <TeamSection />
+        <AdvisorsSection />
         <EventsSection />
+        <AchievementsSection />
         <PartnersSection />
+        <PublicationsSection />
         <ContactSection />
       </main>
       <Footer />

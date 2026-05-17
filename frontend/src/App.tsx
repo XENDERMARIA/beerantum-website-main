@@ -15,6 +15,9 @@ import AdminPartnersPage from "@/pages/admin/AdminPartnersPage";
 import AdminContactsPage from "@/pages/admin/AdminContactsPage";
 import AdminContentPage from "@/pages/admin/AdminContentPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+import AdminAchievementsPage from "@/pages/admin/AdminAchievementsPage";
+import AdminAdvisorsPage from "@/pages/admin/AdminAdvisorsPage";
+import AdminPublicationsPage from "@/pages/admin/AdminPublicationsPage";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -52,6 +55,9 @@ export default function App() {
         <Route path="partners" element={<AdminPartnersPage />} />
         <Route path="contacts" element={<AdminContactsPage />} />
         <Route path="content" element={<AdminContentPage />} />
+        <Route path="achievements" element={<AdminAchievementsPage />} />
+        <Route path="advisors" element={<AdminAdvisorsPage />} />
+        <Route path="publications" element={<AdminPublicationsPage />} />
 
         {}
         <Route

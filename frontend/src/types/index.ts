@@ -169,6 +169,7 @@ export interface Publication {
   year: number;
   abstract?: string;
   url?: string;
+  imageUrl?: string;
   doi?: string;
   tags: string[];
   order?: number;

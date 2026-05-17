@@ -4,6 +4,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Calendar, Handshake, Mail, FileText,
   Menu, X, ExternalLink, LogOut, ChevronRight, UserCog, Crown,
+  Trophy, GraduationCap, BookOpen,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/store/authStore";
@@ -11,12 +12,15 @@ import { authService } from "@/services";
 import { cn } from "@/utils";
 
 const NAV_LINKS = [
-  { href: "/admin",            label: "Dashboard",     icon: LayoutDashboard, exact: true  },
-  { href: "/admin/team",       label: "Team Members",  icon: Users                         },
-  { href: "/admin/events",     label: "Events",        icon: Calendar                      },
-  { href: "/admin/partners",   label: "Partners",      icon: Handshake                     },
-  { href: "/admin/contacts",   label: "Messages",      icon: Mail                          },
-  { href: "/admin/content",    label: "Site Content",  icon: FileText                      },
+  { href: "/admin",              label: "Dashboard",      icon: LayoutDashboard, exact: true  },
+  { href: "/admin/team",         label: "Team Members",   icon: Users                         },
+  { href: "/admin/advisors",     label: "Advisors",       icon: GraduationCap                 },
+  { href: "/admin/events",       label: "Events",         icon: Calendar                      },
+  { href: "/admin/achievements", label: "Achievements",   icon: Trophy                        },
+  { href: "/admin/partners",     label: "Partners",       icon: Handshake                     },
+  { href: "/admin/publications", label: "Publications",   icon: BookOpen                      },
+  { href: "/admin/contacts",     label: "Messages",       icon: Mail                          },
+  { href: "/admin/content",      label: "Site Content",   icon: FileText                      },
 ];
 
 
